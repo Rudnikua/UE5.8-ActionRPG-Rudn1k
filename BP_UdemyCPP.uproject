@@ -29,6 +29,10 @@
 		{
 			"Name": "MeshTerrainMode",
 			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
+			"Enabled": true
 		}
 	]
 }

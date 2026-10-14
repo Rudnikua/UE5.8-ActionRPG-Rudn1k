@@ -61,6 +61,7 @@ void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* H
 {
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 	ActionState = EActionState::EAS_HitReaction;
 }
 
