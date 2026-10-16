@@ -8,9 +8,12 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/AttributeComponent.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
+#include "HUD/MainHUD.h"
+#include "HUD/MainOverlay.h"
 
 AMainCharacter::AMainCharacter()
 {
@@ -57,12 +60,22 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
+float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(DamageAmount);
+	SetHUDHealth();
+	return DamageAmount;
+}
+
 void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-	ActionState = EActionState::EAS_HitReaction;
+	if (Attributes && Attributes->GetHealthPercent() > 0.0f)
+	{
+		ActionState = EActionState::EAS_HitReaction;
+	}
 }
 
 void AMainCharacter::BeginPlay()
@@ -78,6 +91,8 @@ void AMainCharacter::BeginPlay()
 			Subsystem->AddMappingContext(MainContext, 0);
 		}
 	}
+
+	InitializeMainOverlay();
 }
 
 void AMainCharacter::Move(const FInputActionValue& Value)
@@ -105,7 +120,10 @@ void AMainCharacter::Look(const FInputActionValue& Value)
 
 void AMainCharacter::Jump()
 {
-	Super::Jump();
+	if (IsUnoccuppied())
+	{
+		Super::Jump();
+	}
 }
 
 void AMainCharacter::EKeyPressed()
@@ -196,6 +214,13 @@ void AMainCharacter::PlayEquipMontage(const FName& SectionName)
 	}
 }
 
+void AMainCharacter::Die()
+{
+	Super::Die();
+	ActionState = EActionState::EAS_Dead;
+	DisableMeshCollision();
+}
+
 void AMainCharacter::AttachWeaponToBack()
 {
 	if (EquippedWeapon)
@@ -220,4 +245,37 @@ void AMainCharacter::FinishEquipping()
 void AMainCharacter::HitReactEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+}
+
+bool AMainCharacter::IsUnoccuppied()
+{
+	return ActionState == EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::InitializeMainOverlay()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		AMainHUD* MainHUD = Cast<AMainHUD>(PlayerController->GetHUD());
+		if (MainHUD)
+		{
+			MainOverlay = MainHUD->GetMainOverlay();
+			if (MainOverlay && Attributes)
+			{
+				MainOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+				MainOverlay->SetStaminaBarPercent(1.f);
+				MainOverlay->SetGold(0);
+				MainOverlay->SetSouls(0);
+			}
+		}
+	}
+}
+
+void AMainCharacter::SetHUDHealth()
+{
+	if (MainOverlay && Attributes)
+	{
+		MainOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+	}
 }

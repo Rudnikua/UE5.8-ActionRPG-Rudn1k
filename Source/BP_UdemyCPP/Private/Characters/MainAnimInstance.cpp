@@ -30,6 +30,10 @@ void UMainAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		IsFalling = MainCharacterMovement->IsFalling();
 
 		CharacterState = MainCharacter->GetCharacterState();
+
+		ActionState = MainCharacter->GetActionState();
+
+		DeathPose = MainCharacter->GetDeathPose();
 	}
 }
 
