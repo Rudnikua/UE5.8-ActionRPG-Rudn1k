@@ -1,5 +1,4 @@
 #include "Characters/MainCharacter.h"
-
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
@@ -14,10 +13,12 @@
 #include "Animation/AnimMontage.h"
 #include "HUD/MainHUD.h"
 #include "HUD/MainOverlay.h"
+#include "Items/Soul.h"
+#include "Items/Treasure.h"
 
 AMainCharacter::AMainCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -41,6 +42,15 @@ AMainCharacter::AMainCharacter()
 
 }
 
+void AMainCharacter::Tick(float DeltaTime)
+{
+	if (Attributes && MainOverlay)
+	{
+		Attributes->RegenStamina(DeltaTime);
+		MainOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -57,6 +67,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &AMainCharacter::EKeyPressed);
 		// Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
+		// Dodge
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &AMainCharacter::Dodge);
 	}
 }
 
@@ -75,6 +87,29 @@ void AMainCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* H
 	if (Attributes && Attributes->GetHealthPercent() > 0.0f)
 	{
 		ActionState = EActionState::EAS_HitReaction;
+	}
+}
+
+void AMainCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void AMainCharacter::AddSouls(ASoul* Soul)
+{
+	if (Attributes && MainOverlay)
+	{
+		Attributes->AddSouls(Soul->GetSouls());
+		MainOverlay->SetSouls(Attributes->GetSouls());
+	}
+}
+
+void AMainCharacter::AddGold(ATreasure* Treasure)
+{
+	if (Attributes && MainOverlay)
+	{
+		Attributes->AddGold(Treasure->GetGold());
+		MainOverlay->SetGold(Attributes->GetGold());
 	}
 }
 
@@ -156,6 +191,18 @@ void AMainCharacter::Attack()
 	}
 }
 
+void AMainCharacter::Dodge()
+{
+	if (IsOccupied() && !HasEnoughStamina()) return;
+	PlayDodgeMontage();
+	ActionState = EActionState::EAS_Dodge;
+	if (Attributes  && MainOverlay)
+	{
+		Attributes->UseStamina(Attributes->GetDodgeCost());
+		MainOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void AMainCharacter::EquipWeapon(AWeapon* Weapon)
 {
 	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
@@ -165,6 +212,13 @@ void AMainCharacter::EquipWeapon(AWeapon* Weapon)
 }
 
 void AMainCharacter::AttackEnd()
+{
+	Super::DodgeEnd();
+
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void AMainCharacter::DodgeEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
 }
@@ -219,6 +273,16 @@ void AMainCharacter::Die()
 	Super::Die();
 	ActionState = EActionState::EAS_Dead;
 	DisableMeshCollision();
+}
+
+bool AMainCharacter::HasEnoughStamina()
+{
+	return Attributes && Attributes->GetStamina() > Attributes->GetDodgeCost();
+}
+
+bool AMainCharacter::IsOccupied()
+{
+	return ActionState != EActionState::EAS_Unoccupied;
 }
 
 void AMainCharacter::AttachWeaponToBack()

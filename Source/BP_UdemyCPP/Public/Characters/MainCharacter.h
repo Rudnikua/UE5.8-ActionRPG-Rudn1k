@@ -4,6 +4,7 @@
 #include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
+#include "Interfaces/PickupInterface.h"
 #include "MainCharacter.generated.h"
 
 class USpringArmComponent;
@@ -14,22 +15,28 @@ class UInputAction;
 class UAnimMontage;
 
 class AItem;
+class ASoul;
+class ATreasure;
 
 class UMainOverlay;
 
 UCLASS()
-class BP_UDEMYCPP_API AMainCharacter : public ABaseCharacter
+class BP_UDEMYCPP_API AMainCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 public:
 	AMainCharacter();
 
+	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual void SetOverlappingItem(AItem* Item) override;
+	virtual void AddSouls(class ASoul* Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -38,10 +45,12 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed();
 	virtual void Attack() override;
+	void Dodge();
 
 	/* Combat */
 	void EquipWeapon(AWeapon* Weapon);
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	bool CanDisarm();
 	bool CanArm();
@@ -49,6 +58,8 @@ protected:
 	void Arm();
 	void PlayEquipMontage(const FName& SectionName);
 	virtual void Die() override;
+	bool HasEnoughStamina();
+	bool IsOccupied();
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* MainContext;
@@ -62,6 +73,8 @@ protected:
 	UInputAction* EKeyAction;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DodgeAction;
 
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToBack();
@@ -98,7 +111,6 @@ private:
 	UPROPERTY()
 	UMainOverlay* MainOverlay;
 public:
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState()  const { return ActionState; }
 };

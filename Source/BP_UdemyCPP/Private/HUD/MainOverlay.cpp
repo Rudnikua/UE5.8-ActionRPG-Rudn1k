@@ -23,5 +23,5 @@ void UMainOverlay::SetGold(int32 Gold)
 void UMainOverlay::SetSouls(int32 Souls)
 {
 	// convert int32 to string to text
-	if (Souls) SoulsText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Souls)));
+	if (SoulsText) SoulsText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Souls)));
 }

@@ -42,9 +42,9 @@ void AWeapon::Equip(USceneComponent* InParent, FName SocketName, AActor* NewOwne
 
 void AWeapon::DeactivateEmbers()
 {
-	if (EmbersEffect)
+	if (ItemEffect)
 	{
-		EmbersEffect->Deactivate();
+		ItemEffect->Deactivate();
 	}
 }
 
