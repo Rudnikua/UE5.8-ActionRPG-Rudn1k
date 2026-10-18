@@ -52,7 +52,10 @@ void AEnemy::Tick(float DeltaTime)
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
-	CombatTarget = EventInstigator->GetPawn();
+
+	if (IsDead()) return DamageAmount;
+
+	if (EventInstigator) CombatTarget = EventInstigator->GetPawn();
 
 	if (IsInsideAttackRadius())
 	{
@@ -73,6 +76,8 @@ void AEnemy::Destroyed()
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
+	if (IsDead()) return;
+
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 	if (!IsDead()) ShowHealthBar();
 	ClearPatrolTimer();
@@ -97,8 +102,10 @@ void AEnemy::Die()
 	Super::Die();
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
+	ClearPatrolTimer();
 	HideHealthBar();
 	DisableCapsule();
+	DisableMeshCollision();
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -193,7 +193,7 @@ void AMainCharacter::Attack()
 
 void AMainCharacter::Dodge()
 {
-	if (IsOccupied() && !HasEnoughStamina()) return;
+	if (IsOccupied() || !HasEnoughStamina()) return;
 	PlayDodgeMontage();
 	ActionState = EActionState::EAS_Dodge;
 	if (Attributes  && MainOverlay)
