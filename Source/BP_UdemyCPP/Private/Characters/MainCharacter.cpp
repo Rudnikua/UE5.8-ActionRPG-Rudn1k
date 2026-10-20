@@ -64,7 +64,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		// Jump	
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AMainCharacter::Jump);
 		// E Key
-		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &AMainCharacter::EKeyPressed);
+		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Started, this, &AMainCharacter::EKeyPressed);
 		// Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::Attack);
 		// Dodge
@@ -209,7 +209,7 @@ void AMainCharacter::Dodge()
 
 void AMainCharacter::EquipWeapon(AWeapon* Weapon)
 {
-	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this, true);
 	CharacterState = ECharacterState::ECS_EquippedOneHanded;
 	OverlappingItem = nullptr;
 	EquippedWeapon = Weapon;

@@ -16,7 +16,7 @@ class BP_UDEMYCPP_API AWeapon : public AItem
 	GENERATED_BODY()
 public:
 	AWeapon();
-	void Equip(USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator);
+	void Equip(USceneComponent* InParent, FName SocketName, AActor* NewOwner, APawn* NewInstigator, bool bPlaySound = true);
 	void DeactivateEmbers();
 	void DisableSphereCollision();
 	void PlayEquipSound();
