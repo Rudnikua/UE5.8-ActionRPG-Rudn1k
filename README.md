@@ -1,11 +1,13 @@
 # Third-Person Action RPG Prototype (Unreal Engine 5 / C++)
 
-![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.x-black?logo=unrealengine)
+![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.8-black?logo=unrealengine)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B20-00599C?logo=cplusplus)
 ![Input](https://img.shields.io/badge/System-Enhanced%20Input-blue)
 ![Audio](https://img.shields.io/badge/Audio-MetaSounds-purple)
 
 A third-person Action RPG / Hack-and-Slash prototype built in **Unreal Engine 5** with a focus on clean, modular **C++ gameplay architecture**, vector-math combat mechanics, custom animation notifies, and state-machine-driven Enemy AI.
+
+> **Course Project Acknowledgment:** This prototype was developed as part of the *Unreal Engine 5 C++: The Ultimate Game Developer Course* by **Stephen Ulibarri**, extended with custom combat polish, audio notify states, and enemy death physics.
 
 ---
 
@@ -48,7 +50,7 @@ A third-person Action RPG / Hack-and-Slash prototype built in **Unreal Engine 5*
 | **Mouse** | Orbit camera (`SpringArm`) |
 | **Space** | Jump (when unoccupied) |
 | **Left Mouse Button** | Melee Attack (combo chain) |
-| **Left Shift / Alt** | Dodge / Slide (consumes Stamina) |
+| **Ctrl** | Dodge / Slide (consumes Stamina) |
 | **E** | Contextual Interact (Pick up weapon / Equip & Disarm) |
 
 ---
